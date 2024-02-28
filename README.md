@@ -26,4 +26,8 @@ It configures the Kubernetes context for the AWS EKS cluster named 5G-Core-Net.
 
 #
 Deploy Helm Chart on EKS: 
+<<<<<<< HEAD
 This step deploys the Helm chart (amf) on the configured EKS cluster.
+=======
+This step deploys the Helm chart (amf) on the configured EKS cluster.
+>>>>>>> 5c174eede6ddcaaeb8e1da08f57ebf5a55d1f91d
