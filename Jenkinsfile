@@ -1,11 +1,12 @@
 pipeline {
     agent any
     triggers {
-        githubPush()
-    }
+    githubPush()
+  }
     environment {
         DOCKERHUB_CREDENTIALS = credentials('Dockerhub')
-    }
+        }
+
     stages {
         stage('Verify Branch') {
             steps {
@@ -15,17 +16,13 @@ pipeline {
 
         stage('Login to Dockerhub') {
             steps {
-                withCredentials([string(credentialsId: 'Dockerhub', variable: 'DOCKERHUB_ACCESS_TOKEN')]) {
-                    script {
-                        sh "echo '${DOCKERHUB_ACCESS_TOKEN}' | docker login -u abodiaa --password-stdin"
-                    }
-                }
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
             }
         }
 
         stage('Pulling base image from Dockerhub') {
             steps {
-                sh 'docker pull abodiaa/amf-base:latest'
+                    sh 'docker pull abodiaa/amf-base:latest'
             }
         }
 
@@ -44,7 +41,6 @@ pipeline {
                 sh 'trivy image abodiaa/5g-amf --output trivy-report.json'
             }
         }
-
         stage('Pushing to Dockerhub') {
             steps {
                 sh 'docker push abodiaa/5g-amf:latest'
@@ -79,3 +75,7 @@ pipeline {
         }
     }
 }
+
+
+
+
