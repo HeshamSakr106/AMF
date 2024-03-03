@@ -1,31 +1,33 @@
 pipeline {
     agent any
     triggers {
-    githubPush()
-  }
+        githubPush()
+    }
     environment {
         DOCKERHUB_CREDENTIALS = credentials('Dockerhub')
-        }
-
+    }
     stages {
         stage('Verify Branch') {
             steps {
                 echo "$GIT_BRANCH"
             }
         }
-
         stage('Login to Dockerhub') {
             steps {
-                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'Dockerhub', passwordVariable: 'DOCKERHUB_CREDENTIALS_PSW', usernameVariable: 'DOCKERHUB_CREDENTIALS_USR')]) {
+                        maskPasswords {
+                            sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                        }
+                    }
+                }
             }
         }
-
         stage('Pulling base image from Dockerhub') {
             steps {
-                    sh 'docker pull abodiaa/amf-base:latest'
+                sh 'docker pull abodiaa/amf-base:latest'
             }
         }
-
         stage('docker build') {
             steps {
                 sh(script: """
@@ -35,7 +37,6 @@ pipeline {
                 """)
             }
         }
-
         stage('Scan Image for Common Vulnerabilities and Exposures') {
             steps {
                 sh 'trivy image abodiaa/5g-amf --output trivy-report.json'
@@ -46,26 +47,22 @@ pipeline {
                 sh 'docker push abodiaa/5g-amf:latest'
             }
         }
-
         stage('Build and Package Helm Chart') {
             steps {
                 sh 'helm package ./helm/'
             }
         }
-
         stage('Configure Kubernetes Context') {
             steps {
                 sh 'aws eks --region us-east-1 update-kubeconfig --name 5G-Core-Net'
             }
         }
-
         stage('Deploy Helm Chart on EKS') {
             steps {
                 sh 'helm upgrade --install amf ./helm/'
             }
         }
     }
-
     post {
         always {
             // Archiving Test Result
@@ -75,7 +72,3 @@ pipeline {
         }
     }
 }
-
-
-
-
