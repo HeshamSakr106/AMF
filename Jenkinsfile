@@ -17,11 +17,16 @@ pipeline {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'Dockerhub', passwordVariable: 'DOCKERHUB_CREDENTIALS_PSW', usernameVariable: 'DOCKERHUB_CREDENTIALS_USR')]) {
                         maskPasswords {
-                            sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                            sh '''
+                            echo "Logging into Dockerhub"
+                            echo "Username: $DOCKERHUB_CREDENTIALS_USR"
+                            echo "Password: (masked)"
+                            echo "$DOCKERHUB_CREDENTIALS_PSW" | docker login -u "$DOCKERHUB_CREDENTIALS_USR" --password-stdin
+                            '''
                         }
                     }
                 }
-            }
+            } 
         }
         stage('Pulling base image from Dockerhub') {
             steps {
