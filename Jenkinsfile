@@ -17,7 +17,7 @@ pipeline {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'Dockerhub', passwordVariable: 'DOCKERHUB_CREDENTIALS_PSW', usernameVariable: 'DOCKERHUB_CREDENTIALS_USR')]) {
                         maskPasswords {
-                            sh '''
+                            bat '''
                             echo "Logging into Dockerhub"
                             echo "Username: $DOCKERHUB_CREDENTIALS_USR"
                             echo "Password: (masked)"
@@ -30,12 +30,12 @@ pipeline {
         }
         stage('Pulling base image from Dockerhub') {
             steps {
-                sh 'docker pull abodiaa/amf-base:latest'
+                bat 'docker pull abodiaa/amf-base:latest'
             }
         }
         stage('docker build') {
             steps {
-                sh(script: """
+                bat(script: """
                     docker images -a
                     docker build -t abodiaa/5g-amf:latest . 
                     docker images -a
@@ -44,27 +44,27 @@ pipeline {
         }
         stage('Scan Image for Common Vulnerabilities and Exposures') {
             steps {
-                sh 'trivy image abodiaa/5g-amf --output trivy-report.json'
+                bat 'trivy image abodiaa/5g-amf:latest --severity HIGH --output trivy-report.json'
             }
         }
         stage('Pushing to Dockerhub') {
             steps {
-                sh 'docker push abodiaa/5g-amf:latest'
+                bat 'docker push abodiaa/5g-amf:latest'
             }
         }
         stage('Build and Package Helm Chart') {
             steps {
-                sh 'helm package ./helm/'
+                bat 'helm package ./helm/'
             }
         }
         stage('Configure Kubernetes Context') {
             steps {
-                sh 'aws eks --region us-east-1 update-kubeconfig --name 5G-Core-Net'
+                bat 'aws eks --region us-east-1 update-kubeconfig --name 5G-Core-Net'
             }
         }
         stage('Deploy Helm Chart on EKS') {
             steps {
-                sh 'helm upgrade --install amf ./helm/'
+                bat 'helm upgrade --install amf ./helm/'
             }
         }
     }
@@ -72,8 +72,8 @@ pipeline {
         always {
             // Archiving Test Result
             archiveArtifacts artifacts: 'trivy-report.json', fingerprint: true
-            sh 'docker rmi abodiaa/5g-amf'
-            sh 'docker rmi abodiaa/amf-base'
+            bat 'docker rmi abodiaa/5g-amf:latest'
+            bat 'docker rmi abodiaa/amf-base:latest'
         }
     }
 }
