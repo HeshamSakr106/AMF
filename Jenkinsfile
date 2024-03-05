@@ -39,12 +39,10 @@ pipeline {
         }
         stage('Scan Image for Common Vulnerabilities and Exposures') {
             steps {
-                script {
-                    // Run Trivy scan on the Docker image
-                    bat 'docker run --rm -v "$(pwd)":/root aquasec/trivy:latest image abodiaa/5g-amf:latest --severity HIGH --output trivy-report.json'
-                }
+                bat 'docker run --rm -v "%WORKSPACE%:/root" aquasec/trivy:latest image abodiaa/5g-amf:latest --severity HIGH --output /root/trivy-report.json'
             }
         }
+
         stage('Pushing to Dockerhub') {
             steps {
                 bat 'docker push abodiaa/5g-amf:latest'
