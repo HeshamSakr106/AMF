@@ -15,18 +15,13 @@ pipeline {
         stage('Login to Dockerhub') {
             steps {
                 script {
+                    // Retrieve Dockerhub credentials from Jenkins
                     withCredentials([usernamePassword(credentialsId: 'Dockerhub', passwordVariable: 'DOCKERHUB_CREDENTIALS_PSW', usernameVariable: 'DOCKERHUB_CREDENTIALS_USR')]) {
-                        maskPasswords {
-                            bat '''
-                            echo "Logging into Dockerhub"
-                            echo "Username: $DOCKERHUB_CREDENTIALS_USR"
-                            echo "Password: (masked)"
-                            echo "$DOCKERHUB_CREDENTIALS_PSW" | docker login -u "$DOCKERHUB_CREDENTIALS_USR" --password-stdin
-                            '''
-                        }
+                        // Log in to Dockerhub
+                        bat "docker login -u ${DOCKERHUB_CREDENTIALS_USR} -p ${DOCKERHUB_CREDENTIALS_PSW}"
                     }
                 }
-            } 
+            }
         }
         stage('Pulling base image from Dockerhub') {
             steps {
