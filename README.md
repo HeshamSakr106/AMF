@@ -1,33 +1,41 @@
-# 5G-amf
-# Checkout Repository: 
-This step checks out your GitHub repository so that subsequent steps can access your repository's files.
+# Access and Mobility Management Function (AMF)
+# Jenkins Pipeline for 5G AMF Deployment
+This Jenkins pipeline script automates the deployment process of the 5G Access and Mobility Management Function (AMF) using Docker containers and Helm charts.
 
-# Login to Docker Hub: 
-It logs in to Docker Hub using the provided credentials stored as GitHub secrets.
+# Pipeline Overview
+The pipeline consists of the following stages:
 
-# Pull Base Image from Docker Hub: 
+Verify Branch: Echoes the current Git branch being built.
 
-This step pulls the base Docker image (abodiaa/amf-base:latest) from Docker Hub.
+Login to Dockerhub: Logs in to Dockerhub using credentials stored in Jenkins.
 
-# Docker Build: 
-It builds a new Docker image (abodiaa/5g-amf:latest) from the Dockerfile in the repository.
+Pulling base image from Dockerhub: Pulls the base Docker image for the AMF from Dockerhub.
 
-# Scan Image for CVEs: 
-This step scans the newly built Docker image for Common Vulnerabilities and Exposures (CVEs) using Trivy and outputs the scan report to trivy-report.json.
+docker build: Builds a new Docker image for the 5G AMF application.
 
-# Push to Docker Hub: 
-It pushes the newly built Docker image to Docker Hub.
+Scan Image for Common Vulnerabilities and Exposures: Uses Trivy to scan the Docker image for common vulnerabilities and exposures (CVEs).
 
-# Build and Package Helm Chart: 
-This step packages the Helm chart located in the helm/ directory.
+Pushing to Dockerhub: Pushes the newly built Docker image to Dockerhub.
 
-# Configure Kubernetes Context: 
-It configures the Kubernetes context for the AWS EKS cluster named 5G-Core-Net.
+Build and Package Helm Chart: Packages the Helm chart for deployment.
 
-#
-Deploy Helm Chart on EKS: 
-<<<<<<< HEAD
-This step deploys the Helm chart (amf) on the configured EKS cluster.
-=======
-This step deploys the Helm chart (amf) on the configured EKS cluster.
->>>>>>> 5c174eede6ddcaaeb8e1da08f57ebf5a55d1f91d
+Configure Kubernetes Context: Configures the Kubernetes context for deployment.
+
+Deploy Helm Chart on EKS: Deploys the Helm chart on Amazon Elastic Kubernetes Service (EKS).
+
+# Prerequisites
+Jenkins with necessary plugins installed (GitHub plugin, Docker plugin, Credentials plugin).
+AWS CLI installed with appropriate permissions to interact with EKS.
+Docker installed on Jenkins agent nodes.
+Trivy installed on Jenkins agent nodes for vulnerability scanning.
+# Usage
+Ensure that Jenkins is properly configured with necessary plugins and credentials.
+Create a new Jenkins pipeline job and configure it to use this pipeline script.
+Trigger the pipeline manually or set up automatic triggers as per your requirements.
+# Notes
+This pipeline assumes that Docker images are hosted on Dockerhub.
+Replace placeholders (e.g., credentials IDs, Docker image names) with actual values relevant to your setup.
+# References
+Trivy
+Dockerhub
+Helm
