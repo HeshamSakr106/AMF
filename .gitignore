@@ -27,3 +27,8 @@ cscope.*
 # Debug
 *.log
 *.pcap
+
+
+# TLS certificates
+.config/TLS/amf.pem
+.config/TLS/amf.key
